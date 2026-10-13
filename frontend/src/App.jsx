@@ -5,9 +5,16 @@ import CreatePassword from "./pages/CreatePassword";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 
-// ==============================
-// KIỂM TRA TOKEN CÒN HẠN KHÔNG
-// ==============================
+// Album Cloudflare R2
+import Album from "./pages/Album";
+import AlbumDetail from "./pages/AlbumDetail";
+
+/*
+====================================================
+KIỂM TRA TOKEN CÒN HẠN KHÔNG
+====================================================
+*/
+
 function isTokenValid() {
   const token = localStorage.getItem("token");
 
@@ -22,7 +29,12 @@ function isTokenValid() {
       throw new Error("Token không hợp lệ");
     }
 
-    // JWT dùng Base64URL nên cần đổi về Base64 bình thường
+    /*
+    JWT dùng Base64URL.
+
+    Chuyển sang Base64 bình thường.
+    */
+
     let payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
 
     while (payload.length % 4) {
@@ -40,12 +52,20 @@ function isTokenValid() {
       ),
     );
 
-    // Không có exp thì coi như không hợp lệ
+    /*
+    Không có exp
+    → coi như token không hợp lệ.
+    */
+
     if (!decoded.exp) {
       throw new Error("Token không có thời hạn");
     }
 
     const now = Math.floor(Date.now() / 1000);
+
+    /*
+    Token đã hết hạn.
+    */
 
     if (decoded.exp <= now) {
       localStorage.removeItem("token");
@@ -65,9 +85,14 @@ function isTokenValid() {
   }
 }
 
-// ==============================
-// CHỈ CHO NGƯỜI ĐÃ LOGIN VÀO
-// ==============================
+/*
+====================================================
+PROTECTED ROUTE
+
+Chỉ cho người đã đăng nhập truy cập.
+====================================================
+*/
+
 function ProtectedRoute({ children }) {
   if (!isTokenValid()) {
     return <Navigate to="/" replace />;
@@ -76,9 +101,15 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// ==============================
-// NẾU ĐÃ LOGIN THÌ KHÔNG HIỆN LOGIN
-// ==============================
+/*
+====================================================
+LOGIN ROUTE
+
+Nếu đã login
+→ không cho quay lại trang login.
+====================================================
+*/
+
 function LoginRoute() {
   if (isTokenValid()) {
     return <Navigate to="/home" replace />;
@@ -87,9 +118,12 @@ function LoginRoute() {
   return <Login />;
 }
 
-// ==============================
-// CREATE PASSWORD
-// ==============================
+/*
+====================================================
+CREATE PASSWORD ROUTE
+====================================================
+*/
+
 function CreatePasswordRoute() {
   if (isTokenValid()) {
     return <Navigate to="/home" replace />;
@@ -98,17 +132,32 @@ function CreatePasswordRoute() {
   return <CreatePassword />;
 }
 
+/*
+====================================================
+APP
+====================================================
+*/
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* LOGIN */}
+        {/* =========================
+            LOGIN
+        ========================= */}
+
         <Route path="/" element={<LoginRoute />} />
 
-        {/* TẠO PASSWORD LẦN ĐẦU */}
+        {/* =========================
+            CREATE PASSWORD
+        ========================= */}
+
         <Route path="/create-password" element={<CreatePasswordRoute />} />
 
-        {/* HOME */}
+        {/* =========================
+            HOME
+        ========================= */}
+
         <Route
           path="/home"
           element={
@@ -118,7 +167,36 @@ function App() {
           }
         />
 
-        {/* PROFILE */}
+        {/* =========================
+            ALBUM
+        ========================= */}
+
+        <Route
+          path="/album"
+          element={
+            <ProtectedRoute>
+              <Album />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =========================
+            ALBUM DETAIL
+        ========================= */}
+
+        <Route
+          path="/album/:id"
+          element={
+            <ProtectedRoute>
+              <AlbumDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =========================
+            PROFILE
+        ========================= */}
+
         <Route
           path="/profile"
           element={
@@ -128,7 +206,10 @@ function App() {
           }
         />
 
-        {/* URL KHÔNG TỒN TẠI */}
+        {/* =========================
+            URL KHÔNG TỒN TẠI
+        ========================= */}
+
         <Route
           path="*"
           element={

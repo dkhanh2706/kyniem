@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Camera, User, LogOut, Sparkles, Image as ImageIcon } from "lucide-react";
+import {
+  Heart,
+  Camera,
+  User,
+  LogOut,
+  Sparkles,
+  Image as ImageIcon,
+} from "lucide-react";
 
 import CreatePost from "../components/CreatePost";
 import PostCard from "../components/PostCard";
@@ -22,11 +29,23 @@ function Home() {
 
   const user = currentUser;
 
-  // Time-based greeting
+  /*
+  ====================================================
+  LỜI CHÀO THEO THỜI GIAN
+  ====================================================
+  */
+
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Chào buổi sáng ☀️";
-    if (hour < 18) return "Chào buổi chiều 🌤️";
+
+    if (hour < 12) {
+      return "Chào buổi sáng ☀️";
+    }
+
+    if (hour < 18) {
+      return "Chào buổi chiều 🌤️";
+    }
+
     return "Chào buổi tối 🌙";
   };
 
@@ -35,6 +54,7 @@ function Home() {
   LOAD BÀI ĐĂNG
   ====================================================
   */
+
   useEffect(() => {
     let isMounted = true;
 
@@ -56,7 +76,9 @@ function Home() {
         if (response.status === 401) {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+
           navigate("/");
+
           return;
         }
 
@@ -66,10 +88,12 @@ function Home() {
 
         if (isMounted) {
           setPosts(Array.isArray(data.posts) ? data.posts : []);
+
           setError("");
         }
       } catch (err) {
         console.error("fetchPosts error:", err);
+
         if (isMounted) {
           setError(err.message || "Không thể tải dữ liệu.");
         }
@@ -92,8 +116,12 @@ function Home() {
   BÀI MỚI
   ====================================================
   */
+
   const handlePostCreated = (newPost) => {
-    if (!newPost) return;
+    if (!newPost) {
+      return;
+    }
+
     setPosts((currentPosts) => [newPost, ...currentPosts]);
   };
 
@@ -102,6 +130,7 @@ function Home() {
   XÓA BÀI
   ====================================================
   */
+
   const handleDeletePost = async (postId) => {
     if (!token) {
       navigate("/");
@@ -113,6 +142,7 @@ function Home() {
         `http://localhost:5001/api/posts/${postId}`,
         {
           method: "DELETE",
+
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -124,7 +154,9 @@ function Home() {
       if (response.status === 401) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+
         navigate("/");
+
         return;
       }
 
@@ -137,6 +169,7 @@ function Home() {
       );
     } catch (err) {
       console.error("deletePost error:", err);
+
       alert(err.message || "Không thể xóa bài.");
     }
   };
@@ -146,27 +179,48 @@ function Home() {
   ĐĂNG XUẤT
   ====================================================
   */
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     navigate("/");
   };
 
+  /*
+  ====================================================
+  GIAO DIỆN
+  ====================================================
+  */
+
   return (
     <div className="home-page">
-      {/* HEADER */}
+      {/* ============================
+          HEADER
+      ============================ */}
+
       <header className="home-header">
+        {/* BRAND */}
+
         <div className="header-brand" onClick={() => navigate("/home")}>
           <div className="brand-icon-box">
             <Heart size={20} fill="currentColor" />
           </div>
+
           <div className="brand-title-wrap">
             <span className="brand-title">Kỷ Niệm Của Chúng Mình</span>
-            <span className="brand-tagline">Lưu giữ từng khoảnh khắc ngọt ngào</span>
+
+            <span className="brand-tagline">
+              Lưu giữ từng khoảnh khắc ngọt ngào
+            </span>
           </div>
         </div>
 
+        {/* ACTIONS */}
+
         <div className="header-actions">
+          {/* USER */}
+
           <div
             className="header-user-badge"
             title="Đến trang cá nhân"
@@ -181,10 +235,26 @@ function Home() {
                 "?"
               )}
             </div>
+
             <span className="header-user-name">
               {user?.display_name || user?.username || "Người dùng"}
             </span>
           </div>
+
+          {/* ALBUM */}
+
+          <button
+            type="button"
+            className="header-btn album-nav-btn"
+            onClick={() => navigate("/album")}
+            title="Xem album kỷ niệm"
+          >
+            <ImageIcon size={16} />
+
+            <span>Album</span>
+          </button>
+
+          {/* PROFILE */}
 
           <button
             type="button"
@@ -193,8 +263,11 @@ function Home() {
             title="Cài đặt thông tin"
           >
             <User size={16} />
+
             <span>Hồ sơ</span>
           </button>
+
+          {/* LOGOUT */}
 
           <button
             type="button"
@@ -203,17 +276,23 @@ function Home() {
             title="Đăng xuất"
           >
             <LogOut size={16} />
+
             <span>Thoát</span>
           </button>
         </div>
       </header>
 
-      {/* MAIN */}
+      {/* ============================
+          MAIN
+      ============================ */}
+
       <main className="home-content">
-        {/* HERO BANNER */}
+        {/* HERO */}
+
         <section className="home-hero">
           <div className="hero-top-badge">
             <Sparkles size={13} />
+
             <span>Không gian kỷ niệm</span>
           </div>
 
@@ -223,34 +302,44 @@ function Home() {
           </h1>
 
           <p className="hero-subtitle">
-            Mỗi khoảnh khắc bên nhau đều là một câu chuyện đẹp. Hãy ghi dấu lại từng nụ cười, từng chuyến đi và kỷ niệm đáng trân quý.
+            Mỗi khoảnh khắc bên nhau đều là một câu chuyện đẹp. Hãy ghi dấu lại
+            từng nụ cười, từng chuyến đi và kỷ niệm đáng trân quý.
           </p>
 
           <div className="hero-stats-bar">
             <div className="hero-stat-item">
               <Camera size={16} />
+
               <span>{posts.length} kỷ niệm đã lưu giữ</span>
             </div>
+
             <div className="hero-stat-item">
               <Heart size={16} fill="currentColor" />
+
               <span>Gắn kết yêu thương mỗi ngày</span>
             </div>
           </div>
         </section>
 
         {/* CREATE POST */}
+
         <CreatePost onPostCreated={handlePostCreated} />
 
-        {/* FEED SECTION */}
+        {/* ============================
+            FEED
+        ============================ */}
+
         <section className="memory-section">
           <div className="memory-section-header">
             <div className="memory-title-wrap">
               <h2>Dòng Thời Gian Kỷ Niệm</h2>
+
               <span className="memory-count-badge">{posts.length}</span>
             </div>
           </div>
 
-          {/* SKELETON LOADING STATE */}
+          {/* LOADING */}
+
           {loading && (
             <div className="post-list">
               {[1, 2, 3].map((n) => (
@@ -259,15 +348,18 @@ function Home() {
                     <div className="skeleton-avatar">
                       <div className="skeleton-shimmer" />
                     </div>
+
                     <div className="skeleton-meta">
                       <div className="skeleton-line title">
                         <div className="skeleton-shimmer" />
                       </div>
+
                       <div className="skeleton-line sub">
                         <div className="skeleton-shimmer" />
                       </div>
                     </div>
                   </div>
+
                   <div className="skeleton-content">
                     <div className="skeleton-shimmer" />
                   </div>
@@ -276,23 +368,43 @@ function Home() {
             </div>
           )}
 
+          {/* ERROR */}
+
           {!loading && error && (
-            <div className="empty-posts" style={{ borderColor: "#fecaca" }}>
-              <p style={{ color: "#ef4444" }}>{error}</p>
+            <div
+              className="empty-posts"
+              style={{
+                borderColor: "#fecaca",
+              }}
+            >
+              <p
+                style={{
+                  color: "#ef4444",
+                }}
+              >
+                {error}
+              </p>
             </div>
           )}
+
+          {/* EMPTY */}
 
           {!loading && !error && posts.length === 0 && (
             <div className="empty-posts">
               <div className="empty-icon-wrap">
                 <Camera size={32} />
               </div>
+
               <h3>Chưa có kỷ niệm nào</h3>
+
               <p>
-                Hãy là người đầu tiên chia sẻ một khoảnh khắc ý nghĩa của chúng mình lên đây nhé!
+                Hãy là người đầu tiên chia sẻ một khoảnh khắc ý nghĩa của chúng
+                mình lên đây nhé!
               </p>
             </div>
           )}
+
+          {/* POSTS */}
 
           {!loading && !error && posts.length > 0 && (
             <div className="post-list">
